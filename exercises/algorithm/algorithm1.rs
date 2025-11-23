@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -69,15 +68,39 @@ impl<T> LinkedList<T> {
             },
         }
     }
+
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+        where
+        T: std::cmp::PartialOrd,
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
-        }
-	}
+		let mut merged = LinkedList::new();
+
+    let mut a_ptr = list_a.start;
+    let mut b_ptr = list_b.start;
+
+    // 主合并循环
+    while let (Some(a), Some(b)) = (a_ptr, b_ptr) {
+        if unsafe {(*a.as_ptr()).val <= (*b.as_ptr()).val} {
+            merged.add(unsafe { std::ptr::read(&(*a.as_ptr()).val) });
+            a_ptr = unsafe { (*a.as_ptr()).next };
+        } else {
+            merged.add(unsafe { std::ptr::read(&(*b.as_ptr()).val) });
+            b_ptr = unsafe { (*b.as_ptr()).next };
+        };
+    }
+
+    // 处理剩余节点
+    while let Some(curr) = a_ptr {
+        merged.add(unsafe { std::ptr::read(&(*curr.as_ptr()).val) });
+        a_ptr = unsafe { (*curr.as_ptr()).next };
+    }
+    while let Some(curr) = b_ptr {
+        merged.add(unsafe { std::ptr::read(&(*curr.as_ptr()).val) });
+        b_ptr = unsafe { (*curr.as_ptr()).next };
+    }
+
+    merged
+}
 }
 
 impl<T> Display for LinkedList<T>
